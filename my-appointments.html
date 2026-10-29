@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Appointments | CareConnect</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        :root {
+            --primary: #0786a8;
+            --primary-dark: #056781;
+            --background: #f3f9fc;
+            --card: #ffffff;
+            --text: #16354d;
+            --muted: #6b8294;
+            --border: #dce9ef;
+            --success: #13845b;
+            --warning: #a66a00;
+            --danger: #c0392b;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--background);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            padding: 18px 6%;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 3px 15px rgba(18, 53, 77, 0.04);
+        }
+
+        .brand {
+            margin: 0;
+            font-size: 25px;
+            font-weight: 800;
+            color: var(--primary);
+            white-space: nowrap;
+        }
+
+        .brand span {
+            color: var(--text);
+        }
+
+        .navbar nav {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 22px;
+        }
+
+        .navbar nav a {
+            color: #405c70;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .navbar nav a:hover,
+        .navbar nav a.active {
+            color: var(--primary);
+        }
+
+        .page-container {
+            width: min(1100px, 92%);
+            margin: 42px auto;
+        }
+
+        .page-heading {
+            margin-bottom: 28px;
+        }
+
+        .page-heading h1 {
+            margin: 0 0 8px;
+            font-size: clamp(27px, 4vw, 36px);
+            letter-spacing: -0.7px;
+        }
+
+        .page-heading p {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .summary-card {
+            padding: 22px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 6px 22px rgba(18, 53, 77, 0.04);
+        }
+
+        .summary-card .label {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .summary-card .number {
+            margin-top: 6px;
+            font-size: 30px;
+            font-weight: 800;
+        }
+
+        .section-title {
+            margin: 0 0 18px;
+            font-size: 22px;
+        }
+
+        .appointment-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .appointment-card {
+            overflow: hidden;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: 0 8px 25px rgba(18, 53, 77, 0.05);
+        }
+
+        .appointment-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 23px 25px;
+            background: linear-gradient(120deg, #e8f8fb, #f7fcfe);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .appointment-top h3 {
+            margin: 0 0 5px;
+            font-size: 20px;
+        }
+
+        .appointment-top p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 30px;
+            background: #e6f7ed;
+            color: var(--success);
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: capitalize;
+            white-space: nowrap;
+        }
+
+        .status.pending {
+            background: #fff3d8;
+            color: var(--warning);
+        }
+
+        .status.cancelled,
+        .status.rejected {
+            background: #ffebeb;
+            color: var(--danger);
+        }
+
+        .appointment-details {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            padding: 24px 25px;
+        }
+
+        .detail {
+            min-width: 0;
+        }
+
+        .detail-label {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+            overflow-wrap: anywhere;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .appointment-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 0 25px 23px;
+        }
+
+        .btn {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 43px;
+            padding: 10px 18px;
+            border: 0;
+            border-radius: 10px;
+            font: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: #eaf4f7;
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: #dcecf1;
+        }
+
+        .empty-state,
+        .error-state {
+            padding: 48px 22px;
+            text-align: center;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+        }
+
+        .empty-icon {
+            font-size: 46px;
+        }
+
+        .empty-state h2,
+        .error-state h2 {
+            margin: 10px 0;
+            font-size: 23px;
+        }
+
+        .empty-state p,
+        .error-state p {
+            max-width: 520px;
+            margin: 0 auto 22px;
+            color: var(--muted);
+        }
+
+        .debug-note {
+            margin-top: 18px;
+            padding: 14px 16px;
+            background: #fff8e6;
+            border: 1px solid #f0dfa9;
+            border-radius: 10px;
+            color: #73551a;
+            font-size: 13px;
+            overflow-wrap: anywhere;
+        }
+
+        footer {
+            margin-top: 55px;
+            padding: 25px 15px;
+            background: white;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            text-align: center;
+            font-size: 13px;
+        }
+
+        @media (max-width: 700px) {
+            .navbar {
+                align-items: flex-start;
+                flex-direction: column;
+                padding: 18px 5%;
+            }
+
+            .navbar nav {
+                gap: 12px 18px;
+            }
+
+            .page-container {
+                margin-top: 28px;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .summary-card {
+                padding: 17px;
+            }
+
+            .appointment-top {
+                flex-direction: column;
+                padding: 19px;
+            }
+
+            .appointment-details {
+                grid-template-columns: 1fr;
+                padding: 20px;
+                gap: 15px;
+            }
+
+            .appointment-actions {
+                flex-direction: column;
+                padding: 0 20px 20px;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <script src="auth.js"></script>
+
+    <header class="navbar">
+        <h2 class="brand">✚ <span>CareConnect</span></h2>
+
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="doctors.html">Doctors</a>
+            <a href="appointment.html">Appointment</a>
+            <a href="my-appointments.html" class="active">My Appointments</a>
+            <a href="#" id="logoutLink">Logout</a>
+        </nav>
+    </header>
+
+    <main class="page-container">
+
+        <section class="page-heading">
+            <h1>📅 My Appointments</h1>
+            <p>View your bookings and check their current status.</p>
+        </section>
+
+        <section class="summary-grid">
+            <div class="summary-card">
+                <div class="label">Total Appointments</div>
+                <div class="number" id="totalCount">0</div>
+            </div>
+
+            <div class="summary-card">
+                <div class="label">Upcoming Appointments</div>
+                <div class="number" id="upcomingCount">0</div>
+            </div>
+
+            <div class="summary-card">
+                <div class="label">Completed Appointments</div>
+                <div class="number" id="completedCount">0</div>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="section-title">Your Booking History</h2>
+            <div id="appointments" class="appointment-list" aria-live="polite"></div>
+        </section>
+
+    </main>
+
+    <footer>
+        © <span id="year"></span> CareConnect · Care, close to you.
+    </footer>
+
+    <script>
+        "use strict";
+
+        document.getElementById("year").textContent =
+            new Date().getFullYear();
+
+        document.getElementById("logoutLink").addEventListener("click", function (event) {
+            event.preventDefault();
+
+            if (typeof logout === "function") {
+                logout();
+            } else {
+                localStorage.removeItem("homeTreatsLoggedInUser");
+                window.location.href = "login.html";
+            }
+        });
+
+        const container = document.getElementById("appointments");
+
+        function escapeHTML(value) {
+            return String(value ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function readStoredAppointments() {
+            /*
+             * First use the function in auth.js.
+             * If it fails, read the same localStorage key directly.
+             */
+            try {
+                if (typeof getAppointments === "function") {
+                    const result = getAppointments();
+
+                    if (Array.isArray(result)) {
+                        return result;
+                    }
+                }
+            } catch (error) {
+                console.warn("getAppointments() failed:", error);
+            }
+
+            try {
+                const stored = localStorage.getItem("homeTreatsAppointments");
+                const parsed = stored ? JSON.parse(stored) : [];
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (error) {
+                console.error("Could not read saved appointments:", error);
+                return [];
+            }
+        }
+
+        function readCurrentUser() {
+            try {
+                if (typeof getCurrentUser === "function") {
+                    const user = getCurrentUser();
+                    if (user) return user;
+                }
+            } catch (error) {
+                console.warn("getCurrentUser() failed:", error);
+            }
+
+            try {
+                const raw = localStorage.getItem("homeTreatsLoggedInUser");
+                return raw ? JSON.parse(raw) : null;
+            } catch (error) {
+                return null;
+            }
+        }
+
+        function getPatientEmail(appointment) {
+            return String(
+                appointment.patientEmail ??
+                appointment.email ??
+                appointment.userEmail ??
+                appointment.patient?.email ??
+                ""
+            ).trim().toLowerCase();
+        }
+
+        function getUserEmail(user) {
+            return String(
+                user?.email ??
+                user?.userEmail ??
+                ""
+            ).trim().toLowerCase();
+        }
+
+        function formatValue(value, fallback = "Not provided") {
+            if (value === null || value === undefined || value === "") {
+                return fallback;
+            }
+
+            return String(value);
+        }
+
+        function getAppointmentStatus(appointment) {
+            return String(appointment.status || "Booked").trim();
+        }
+
+        function isCompleted(appointment) {
+            return getAppointmentStatus(appointment).toLowerCase() === "completed";
+        }
+
+        function isCancelled(appointment) {
+            const status = getAppointmentStatus(appointment).toLowerCase();
+            return status === "cancelled" || status === "canceled" || status === "rejected";
+        }
+
+        function isUpcoming(appointment) {
+            if (isCompleted(appointment) || isCancelled(appointment)) {
+                return false;
+            }
+
+            if (!appointment.date) {
+                return true;
+            }
+
+            const appointmentDate = new Date(appointment.date + "T23:59:59");
+            if (Number.isNaN(appointmentDate.getTime())) {
+                return true;
+            }
+
+            return appointmentDate >= new Date();
+        }
+
+        function renderAppointment(appointment, index) {
+            const doctor = formatValue(
+                appointment.doctor ??
+                appointment.doctorName ??
+                appointment.hospitalName ??
+                appointment.hospital ??
+                appointment.provider
+            );
+
+            const date = formatValue(
+                appointment.date ??
+                appointment.appointmentDate
+            );
+
+            const time = formatValue(
+                appointment.time ??
+                appointment.appointmentTime
+            );
+
+            const healthIssue = formatValue(
+                appointment.healthIssue ??
+                appointment.concern ??
+                appointment.issue
+            );
+
+            const symptoms = formatValue(appointment.symptoms);
+
+            const hospitalAddress = formatValue(
+                appointment.hospitalAddress ??
+                appointment.address
+            );
+
+            const status = getAppointmentStatus(appointment);
+            const statusClass = isCancelled(appointment)
+                ? "cancelled"
+                : status.toLowerCase() === "pending"
+                    ? "pending"
+                    : status.toLowerCase() === "rejected"
+                        ? "rejected"
+                        : "";
+
+            return `
+                <article class="appointment-card">
+                    <div class="appointment-top">
+                        <div>
+                            <h3>🏥 ${escapeHTML(doctor)}</h3>
+                            <p>Appointment #${index + 1}</p>
+                        </div>
+
+                        <span class="status ${escapeHTML(statusClass)}">
+                            ${escapeHTML(status)}
+                        </span>
+                    </div>
+
+                    <div class="appointment-details">
+                        <div class="detail">
+                            <span class="detail-label">Appointment Date</span>
+                            <div class="detail-value">📅 ${escapeHTML(date)}</div>
+                        </div>
+
+                        <div class="detail">
+                            <span class="detail-label">Appointment Time</span>
+                            <div class="detail-value">⏰ ${escapeHTML(time)}</div>
+                        </div>
+
+                        <div class="detail">
+                            <span class="detail-label">Health Concern</span>
+                            <div class="detail-value">🩺 ${escapeHTML(healthIssue)}</div>
+                        </div>
+
+                        <div class="detail">
+                            <span class="detail-label">Symptoms</span>
+                            <div class="detail-value">${escapeHTML(symptoms)}</div>
+                        </div>
+
+                        <div class="detail">
+                            <span class="detail-label">Hospital Address</span>
+                            <div class="detail-value">📍 ${escapeHTML(hospitalAddress)}</div>
+                        </div>
+
+                        <div class="detail">
+                            <span class="detail-label">Patient</span>
+                            <div class="detail-value">${escapeHTML(
+                                appointment.patientName ??
+                                appointment.username ??
+                                appointment.name ??
+                                "Logged-in patient"
+                            )}</div>
+                        </div>
+                    </div>
+
+                    <div class="appointment-actions">
+                        <a class="btn btn-secondary" href="index.html">
+                            Find Hospitals
+                        </a>
+                        <a class="btn btn-primary" href="appointment.html">
+                            Book Another Appointment
+                        </a>
+                    </div>
+                </article>
+            `;
+        }
+
+        function showEmptyState(message) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">📅</div>
+                    <h2>No Appointments Found</h2>
+                    <p>${escapeHTML(message)}</p>
+                    <a class="btn btn-primary" href="appointment.html">
+                        Book an Appointment
+                    </a>
+                </div>
+            `;
+        }
+
+        function loadAppointments() {
+            const user = readCurrentUser();
+
+            if (!user) {
+                container.innerHTML = `
+                    <div class="error-state">
+                        <h2>Login Required</h2>
+                        <p>Please log in to view your appointments.</p>
+                        <a class="btn btn-primary" href="login.html">Login</a>
+                    </div>
+                `;
+                return;
+            }
+
+            const allAppointments = readStoredAppointments();
+            const userEmail = getUserEmail(user);
+
+            /*
+             * Match the current patient's email.
+             * If old records don't contain an email, do not show them
+             * as belonging to this patient.
+             */
+            const myAppointments = allAppointments.filter(function (appointment) {
+                return getPatientEmail(appointment) === userEmail;
+            });
+
+            document.getElementById("totalCount").textContent =
+                myAppointments.length;
+
+            document.getElementById("upcomingCount").textContent =
+                myAppointments.filter(isUpcoming).length;
+
+            document.getElementById("completedCount").textContent =
+                myAppointments.filter(isCompleted).length;
+
+            if (myAppointments.length === 0) {
+                const hasSavedRecords = allAppointments.length > 0;
+
+                showEmptyState(
+                    hasSavedRecords
+                        ? "Appointments are saved in this browser, but their patient email does not match your current login. Check the booking code and logged-in email."
+                        : "You haven't booked an appointment in this browser yet. Choose a hospital and complete the appointment form."
+                );
+
+                if (hasSavedRecords) {
+                    const note = document.createElement("div");
+                    note.className = "debug-note";
+                    note.textContent =
+                        "Debug information: " + allAppointments.length +
+                        " appointment record(s) exist in localStorage, but none matched the logged-in email. The booking form may be saving a different email field or using another storage key.";
+                    container.appendChild(note);
+                }
+
+                return;
+            }
+
+            container.innerHTML = myAppointments
+                .slice()
+                .reverse()
+                .map(function (appointment, index) {
+                    return renderAppointment(
+                        appointment,
+                        myAppointments.length - index
+                    );
+                })
+                .join("");
+        }
+
+        loadAppointments();
+    </script>
+
+</body>
+</html>

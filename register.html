@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>CareConnect - Register</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body class="auth-page">
+    <div class="ecg-background">
+
+    <svg
+        viewBox="0 0 1200 180"
+        preserveAspectRatio="none"
+    >
+
+        <path
+            class="ecg-line"
+            d="
+            M0,90
+            L180,90
+            L205,90
+            L220,40
+            L235,140
+            L250,90
+            L290,90
+            L315,90
+            L330,65
+            L345,115
+            L360,90
+            L520,90
+            L545,90
+            L560,30
+            L575,150
+            L590,90
+            L625,90
+            L650,90
+            L665,55
+            L680,125
+            L695,90
+            L850,90
+            L875,90
+            L890,35
+            L905,145
+            L920,90
+            L950,90
+            L975,90
+            L990,60
+            L1005,120
+            L1020,90
+            L1200,90
+            "
+        />
+
+    </svg>
+
+</div>
+
+
+<div class="auth-container">
+
+    <div class="auth-card">
+
+        <h1>🏥 CareConnect</h1>
+
+        <h2>Create Account</h2>
+
+        <p>
+            Register to access your healthcare dashboard.
+        </p>
+
+
+        <form id="registerForm">
+
+
+            <input
+                type="text"
+                id="name"
+                placeholder="Full Name"
+                required
+            >
+
+
+            <input
+                type="email"
+                id="email"
+                placeholder="Email Address"
+                required
+            >
+
+
+            <input
+                type="tel"
+                id="phone"
+                placeholder="Phone Number"
+                required
+            >
+
+
+            <input
+                type="password"
+                id="password"
+                placeholder="Password"
+                required
+            >
+
+
+            <input
+                type="password"
+                id="confirmPassword"
+                placeholder="Confirm Password"
+                required
+            >
+
+
+            <button type="submit">
+                Create Account
+            </button>
+
+        </form>
+
+
+        <p>
+            Already have an account?
+            <a href="login.html">Login</a>
+        </p>
+
+    </div>
+
+</div>
+
+
+<script>
+
+document
+.getElementById("registerForm")
+.addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+
+    const name =
+        document.getElementById("name")
+        .value.trim();
+
+
+    const email =
+        document.getElementById("email")
+        .value.trim()
+        .toLowerCase();
+
+
+    const phone =
+        document.getElementById("phone")
+        .value.trim();
+
+
+    const password =
+        document.getElementById("password")
+        .value;
+
+
+    const confirmPassword =
+        document.getElementById("confirmPassword")
+        .value;
+
+
+    if (password !== confirmPassword) {
+
+        alert("❌ Passwords do not match.");
+
+        return;
+
+    }
+
+
+    const users =
+        JSON.parse(
+            localStorage.getItem("homeTreatsUsers")
+        ) || [];
+
+
+    const existingUser =
+        users.find(
+            user => user.email === email
+        );
+
+
+    if (existingUser) {
+
+        alert(
+            "⚠️ This email is already registered."
+        );
+
+        return;
+
+    }
+
+
+    users.push({
+
+        name: name,
+
+        email: email,
+
+        phone: phone,
+
+        password: password
+
+    });
+
+
+    localStorage.setItem(
+
+        "homeTreatsUsers",
+
+        JSON.stringify(users)
+
+    );
+
+
+    alert(
+        "✅ Registration successful! Please login."
+    );
+
+
+    window.location.href =
+        "login.html";
+
+});
+
+</script>
+
+</body>
+</html>

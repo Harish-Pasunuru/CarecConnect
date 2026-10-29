@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CareConnect | Hospital Discovery & Care</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<style>
+.hospital-results select{width:100%;padding:15px;border:1px solid #cbdde3;border-radius:12px;background:#fff;color:#21465b;font:inherit}
+.hospital-result-list{display:grid;gap:12px;margin-top:18px}
+.nearby-hospital{display:flex;gap:14px;align-items:flex-start;padding:18px;background:#fff;border:1px solid #dcebee;border-radius:16px;box-shadow:0 8px 24px #17465a0b}
+.nearby-hospital .result-symbol{flex-shrink:0}
+.nearby-hospital .hospital-info{flex:1;min-width:0}
+.nearby-hospital h4{margin:2px 0 5px;color:#123e52;font-size:16px}
+.nearby-hospital p{margin:4px 0;color:#668091;font-size:12px}
+.distance-pill{display:inline-block;background:#e2f8f5;color:#087f91;border-radius:999px;padding:4px 9px;font-weight:800;font-size:11px;margin:5px 0}
+.nearby-hospital button{border:0;border-radius:10px;padding:10px 13px;background:linear-gradient(110deg,#087eaa,#0aa7b1);color:#fff;font-weight:700;cursor:pointer;white-space:nowrap}
+.location-state{padding:14px;border-radius:12px;background:#eef9fa;color:#356779;font-size:13px;margin-top:14px}
+.language-switch{display:flex;align-items:center;gap:6px;margin-left:6px}
+.language-switch select{border:1px solid #d9e9ed;border-radius:9px;padding:8px;background:#fff;color:#21465b;font-weight:700}
+.demo-disclaimer{font-size:12px;color:#668091;line-height:1.6;margin-top:16px}
+@media(max-width:760px){
+.nearby-hospital{flex-wrap:wrap}
+.nearby-hospital button{width:100%}
+.language-switch{margin:0}
+}
+</style>
+</head>
+
+<body class="dashboard-page">
+
+<script src="auth.js"></script>
+
+<header class="navbar">
+  <a class="brand" href="index.html">
+    <span class="brand-icon">✚</span>
+    <span>CareConnect<small>CARE • CLOSE TO YOU</small></span>
+  </a>
+
+  <nav>
+    <a class="active" href="index.html">Home</a>
+    <a href="#find-care">Find Hospitals</a>
+    <a href="doctors.html" onclick="return protectedLink(event)">Doctors</a>
+    <a href="branches.html">Locations</a>
+
+    <span class="language-switch">
+      <select id="languageSelect" aria-label="Choose language">
+        <option value="en">English</option>
+        <option value="te">తెలుగు</option>
+        <option value="hi">हिन्दी</option>
+      </select>
+    </span>
+
+    <span id="guestButtons">
+      <a href="login.html">Login</a>
+      <a class="register-nav" href="register.html">Register</a>
+    </span>
+
+    <span id="userButtons" style="display:none">
+      <a href="my-information.html">My Information</a>
+      <a href="#" onclick="logout();return false;">Logout</a>
+    </span>
+  </nav>
+</header>
+
+<main>
+
+<section class="hero hospital-hero">
+  <div class="hero-grid" aria-hidden="true">
+    <span class="float-cross cross-one">✚</span>
+    <span class="float-cross cross-two">✚</span>
+    <span class="float-cross cross-three">✚</span>
+    <div class="pulse-ring ring-one"></div>
+    <div class="pulse-ring ring-two"></div>
+  </div>
+
+  <div class="hero-content">
+    <div class="eyebrow">
+      <span class="live-dot"></span>
+      YOUR HEALTHCARE, CONNECTED
+    </div>
+
+    <h1>Find the right care.<br><span>Closer to home.</span></h1>
+
+    <p>
+      Tell us what you need help with and where you are.
+      Discover hospitals and healthcare facilities around you,
+      all in one place.
+    </p>
+
+    <div class="hero-trust">
+      <span>✚ Patient-first discovery</span>
+      <span>⌖ Location-based search</span>
+      <span>♡ Care made simpler</span>
+    </div>
+
+    <a href="#find-care" class="hero-button">
+      Find hospitals near me <span>→</span>
+    </a>
+  </div>
+
+  <div class="hero-visual" aria-hidden="true">
+    <div class="medical-orbit orbit-a"></div>
+    <div class="medical-orbit orbit-b"></div>
+
+    <div class="medical-glass">
+      <div class="medical-cross">✚</div>
+      <div class="glass-caption">
+        CARE IS CLOSER<br>
+        <strong>THAN YOU THINK</strong>
+      </div>
+      <div class="mini-ecg">
+        <svg viewBox="0 0 320 55" preserveAspectRatio="none">
+          <path d="M0 28 H78 L94 28 L108 10 L121 45 L136 20 L148 28 H185 L201 28 L215 6 L229 47 L244 28 H320"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="floating-card card-top">
+      <span class="float-card-icon">✚</span>
+      <span><strong>Care that fits</strong><small>Find relevant specialties</small></span>
+    </div>
+
+    <div class="floating-card card-bottom">
+      <span class="location-icon">⌖</span>
+      <span><strong>Closer to you</strong><small>Sort by distance</small></span>
+    </div>
+  </div>
+
+  <div class="hero-wave"></div>
+</section>
+
+<section class="search-section" id="find-care">
+
+  <div class="section-heading">
+    <div class="eyebrow blue-eyebrow">START YOUR SEARCH</div>
+    <h2>What kind of care are you looking for?</h2>
+    <p>Enter a health concern and your location to explore nearby healthcare facilities.</p>
+  </div>
+
+  <form id="hospitalSearchForm" class="hospital-search-card">
+
+    <label class="search-field">
+      <span class="field-icon">♡</span>
+      <span class="field-body">
+        <span>Health concern or specialty</span>
+
+        <select id="healthConcern" required>
+          <option value="">Choose a health concern</option>
+          <option value="general">General check-up</option>
+          <option value="cardiology">Heart / chest concerns</option>
+          <option value="dermatology">Skin / pimples / rashes</option>
+          <option value="orthopedics">Bone / joint pain</option>
+          <option value="ophthalmology">Eye problems</option>
+          <option value="dentistry">Dental problems</option>
+          <option value="gynecology">Women's health</option>
+          <option value="pediatrics">Child healthcare</option>
+          <option value="neurology">Headache / neurological concerns</option>
+          <option value="ent">Ear, nose or throat</option>
+        </select>
+      </span>
+    </label>
+
+    <div class="search-field" style="grid-column:1/-1">
+      <span class="field-icon">⌖</span>
+      <span class="field-body">
+        <span id="locationLabel">Your current location</span>
+
+        <input
+          id="hospitalLocation"
+          type="text"
+          placeholder="Allow location permission to find nearby facilities"
+          readonly
+        >
+
+        <small id="locationStatus" style="display:block;color:#668091;margin-top:5px">
+          Your browser will ask permission before sharing your location.
+        </small>
+      </span>
+    </div>
+
+    <button class="search-submit" type="submit" id="searchHospitalsButton">
+      Find matching hospitals <span>→</span>
+    </button>
+
+    <button class="location-button" id="useLocation" type="button">
+      ◎ Detect my location
+    </button>
+
+  </form>
+
+  <p class="privacy-note" id="privacyNote">
+    🔒 Your location is requested only with your permission.
+    Nearby results are prioritised by distance.
+  </p>
+
+  <div id="hospitalResults" class="hospital-results" aria-live="polite"></div>
+</section>
+
+<section class="care-steps">
+  <div class="section-heading">
+    <div class="eyebrow blue-eyebrow">HOW IT WORKS</div>
+    <h2>A simpler path to healthcare</h2>
+    <p>Three simple steps to get started.</p>
+  </div>
+
+  <div class="steps-grid">
+    <article class="step-card">
+      <div class="step-icon">⌕</div>
+      <span class="step-number">STEP 01</span>
+      <h3>Tell us what you need</h3>
+      <p>Choose a health concern or medical specialty.</p>
+    </article>
+
+    <article class="step-card">
+      <div class="step-icon">⌖</div>
+      <span class="step-number">STEP 02</span>
+      <h3>Choose your location</h3>
+      <p>Allow location access to find facilities around you.</p>
+    </article>
+
+    <article class="step-card">
+      <div class="step-icon">✚</div>
+      <span class="step-number">STEP 03</span>
+      <h3>Explore nearby care</h3>
+      <p>Review nearby facilities and continue to the appointment page.</p>
+    </article>
+  </div>
+</section>
+
+<section class="emergency-strip">
+  <div class="emergency-symbol">!</div>
+  <div>
+    <strong>Medical emergency?</strong>
+    <p>
+      If someone has severe chest pain, difficulty breathing,
+      signs of stroke, or another life-threatening symptom,
+      call India's emergency number <strong>112</strong> or seek
+      emergency care immediately. Do not wait for an online search.
+    </p>
+  </div>
+  <a href="https://112.gov.in/" target="_blank" rel="noopener">
+    Emergency help ↗
+  </a>
+</section>
+
+<section class="about-section" id="about">
+  <div class="about-mark">✚</div>
+  <div>
+    <div class="eyebrow blue-eyebrow">ABOUT CARECONNECT</div>
+    <h2>Helping people navigate healthcare with confidence.</h2>
+    <p>
+      CareConnect is a hospital discovery and appointment project
+      designed to make finding care easier. Always contact a facility
+      to confirm its services, availability and details before travelling.
+    </p>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <a class="brand footer-brand" href="index.html">
+    <span class="brand-icon">✚</span>
+    <span>CareConnect<small>CARE • CLOSE TO YOU</small></span>
+  </a>
+
+  <p>© 2026 CareConnect · Your health, your journey, better connected.</p>
+  <a href="#find-care">Find care ↑</a>
+</footer>
+
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+
+  const form = $('hospitalSearchForm');
+  const results = $('hospitalResults');
+  const locationStatus = $('locationStatus');
+  const locationButton = $('useLocation');
+  const searchButton = $('searchHospitalsButton');
+
+  let lang = localStorage.getItem('homeTreatsLanguage') || 'en';
+  let userCoords = null;
+  let hospitalMap = null;
+
+  const concernLabels = {
+    general: 'General check-up',
+    cardiology: 'Heart / chest concerns',
+    dermatology: 'Skin / pimples / rashes',
+    orthopedics: 'Bone / joint pain',
+    ophthalmology: 'Eye problems',
+    dentistry: 'Dental problems',
+    gynecology: "Women's health",
+    pediatrics: 'Child healthcare',
+    neurology: 'Headache / neurological concerns',
+    ent: 'Ear, nose or throat'
+  };
+
+  const concernKeywords = {
+    general: ['hospital', 'clinic', 'medical'],
+    cardiology: ['cardiology', 'cardiac', 'heart'],
+    dermatology: ['dermatology', 'dermatologist', 'skin'],
+    orthopedics: ['orthopedic', 'orthopaedic', 'bone'],
+    ophthalmology: ['ophthalmology', 'ophthalmologist', 'eye'],
+    dentistry: ['dentist', 'dental'],
+    gynecology: ['gynecology', 'gynaecology', 'maternity', 'women'],
+    pediatrics: ['pediatric', 'paediatric', 'children', 'child'],
+    neurology: ['neurology', 'neurologist', 'brain'],
+    ent: ['ear nose throat', 'otorhinolaryngology', 'ent']
+  };
+
+  const translations = {
+    en: {
+      home: 'Home',
+      find: 'Find Hospitals',
+      concern: 'What kind of care are you looking for?',
+      intro: 'Choose a health concern and allow location access to see nearby facilities.',
+      health: 'Health concern or specialty',
+      choose: 'Choose a health concern',
+      location: 'Your current location',
+      detect: '◎ Detect my location',
+      search: 'Find matching hospitals',
+      loading: 'Finding your location…',
+      denied: 'Location permission was denied or is unavailable. Enable it in your browser and try again.',
+      nearby: 'Nearby healthcare facilities',
+      chooseHospital: 'Choose hospital',
+      emergency: 'In an emergency, call 112 in India.'
+    },
+    te: {
+      home: 'హోమ్',
+      find: 'ఆసుపత్రులను కనుగొనండి',
+      concern: 'మీకు ఎలాంటి వైద్యం కావాలి?',
+      intro: 'ఆరోగ్య సమస్యను ఎంచుకుని దగ్గరలోని వైద్య కేంద్రాలను చూడటానికి లొకేషన్ అనుమతించండి.',
+      health: 'ఆరోగ్య సమస్య / స్పెషాలిటీ',
+      choose: 'ఆరోగ్య సమస్యను ఎంచుకోండి',
+      location: 'మీ ప్రస్తుత లొకేషన్',
+      detect: '◎ నా లొకేషన్ గుర్తించండి',
+      search: 'ఆసుపత్రులను కనుగొనండి',
+      loading: 'మీ లొకేషన్ కనుగొంటున్నాం…',
+      denied: 'లొకేషన్ అనుమతి లభించలేదు. బ్రౌజర్ సెట్టింగ్స్‌లో అనుమతించి మళ్లీ ప్రయత్నించండి.',
+      nearby: 'దగ్గరలోని వైద్య కేంద్రాలు',
+      chooseHospital: 'ఆసుపత్రిని ఎంచుకోండి',
+      emergency: 'అత్యవసర పరిస్థితిలో 112కు కాల్ చేయండి.'
+    },
+    hi: {
+      home: 'होम',
+      find: 'अस्पताल खोजें',
+      concern: 'आपको किस तरह की चिकित्सा चाहिए?',
+      intro: 'स्वास्थ्य समस्या चुनें और पास के चिकित्सा केंद्र देखने के लिए लोकेशन की अनुमति दें।',
+      health: 'स्वास्थ्य समस्या / विशेषज्ञता',
+      choose: 'स्वास्थ्य समस्या चुनें',
+      location: 'आपकी वर्तमान लोकेशन',
+      detect: '◎ मेरी लोकेशन पता करें',
+      search: 'अस्पताल खोजें',
+      loading: 'आपकी लोकेशन खोजी जा रही है…',
+      denied: 'लोकेशन अनुमति नहीं मिली। ब्राउज़र सेटिंग में अनुमति देकर फिर कोशिश करें।',
+      nearby: 'पास के चिकित्सा केंद्र',
+      chooseHospital: 'अस्पताल चुनें',
+      emergency: 'आपात स्थिति में 112 पर कॉल करें।'
+    }
+  };
+
+  function t(key) {
+    return (translations[lang] || translations.en)[key]
+      || translations.en[key]
+      || key;
+  }
+
+  function escapeHtml(value) {
+    return String(value || '').replace(/[&<>"']/g, char => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    })[char]);
+  }
+
+  function applyLanguage() {
+    $('languageSelect').value = lang;
+
+    document.querySelector('nav a[href="index.html"]').textContent = t('home');
+    document.querySelector('nav a[href="#find-care"]').textContent = t('find');
+
+    $('locationLabel').textContent = t('location');
+    $('useLocation').textContent = t('detect');
+
+    $('searchHospitalsButton').innerHTML =
+      escapeHtml(t('search')) + ' <span>→</span>';
+
+    $('privacyNote').textContent =
+      '🔒 ' + (
+        lang === 'te'
+          ? 'మీ అనుమతితో మాత్రమే లొకేషన్ తీసుకుంటాం.'
+          : lang === 'hi'
+          ? 'आपकी अनुमति से ही लोकेशन ली जाएगी।'
+          : 'Your location is requested only with your permission.'
+      );
+  }
+
+  $('languageSelect').addEventListener('change', event => {
+    lang = event.target.value;
+    localStorage.setItem('homeTreatsLanguage', lang);
+    applyLanguage();
+  });
+
+  applyLanguage();
+
+  if (typeof isLoggedIn === 'function' && isLoggedIn()) {
+    $('guestButtons').style.display = 'none';
+    $('userButtons').style.display = 'inline-flex';
+
+    const user = typeof getCurrentUser === 'function'
+      ? getCurrentUser()
+      : null;
+
+    if (user) {
+      document.querySelector('.hero-content > p').textContent =
+        'Welcome back, ' + (user.name || 'there') +
+        '. Let’s help you find healthcare that fits your needs.';
+    }
+  }
+
+  function distanceKm(a, b) {
+    const R = 6371;
+
+    const dLat = (b.lat - a.lat) * Math.PI / 180;
+    const dLng = (b.lng - a.lng) * Math.PI / 180;
+
+    const lat1 = a.lat * Math.PI / 180;
+    const lat2 = b.lat * Math.PI / 180;
+
+    const x =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(lat1) *
+      Math.cos(lat2) *
+      Math.sin(dLng / 2) ** 2;
+
+    return 2 * R * Math.atan2(
+      Math.sqrt(x),
+      Math.sqrt(1 - x)
+    );
+  }
+
+  async function detectLocation(thenSearch = false) {
+    if (!navigator.geolocation) {
+      locationStatus.textContent = t('denied');
+      return;
+    }
+
+    locationStatus.textContent = t('loading');
+    locationButton.disabled = true;
+
+    navigator.geolocation.getCurrentPosition(
+      async position => {
+        userCoords = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+
+        try {
+          const url =
+            'https://nominatim.openstreetmap.org/reverse?format=jsonv2' +
+            '&lat=' + userCoords.lat +
+            '&lon=' + userCoords.lng;
+
+          const response = await fetch(url);
+
+          if (!response.ok) {
+            throw new Error('Could not look up address');
+          }
+
+          const data = await response.json();
+          const address = data.address || {};
+
+          $('hospitalLocation').value = [
+            address.suburb || address.neighbourhood ||
+              address.city_district,
+            address.city || address.town ||
+              address.village || address.city_district,
+            address.postcode
+          ].filter(Boolean).join(', ') || 'Current location';
+
+        } catch (error) {
+          $('hospitalLocation').value = 'Current location';
+        }
+
+        locationStatus.textContent =
+          '✓ ' + $('hospitalLocation').value;
+
+        locationButton.disabled = false;
+
+        if (thenSearch) {
+          searchNearby();
+        }
+      },
+
+      error => {
+        console.warn('Location error:', error);
+        locationStatus.textContent = t('denied');
+        locationButton.disabled = false;
+
+        results.innerHTML =
+          '<div class="location-state">' +
+          escapeHtml(t('denied')) +
+          '</div>';
+      },
+
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 60000
+      }
+    );
+  }
+
+  async function searchNearby() {
+    const issue = $('healthConcern').value;
+
+    if (!issue) {
+      alert(t('choose'));
+      return;
+    }
+
+    if (!userCoords) {
+      detectLocation(true);
+      return;
+    }
+
+    searchButton.disabled = true;
+
+    results.innerHTML =
+      '<div class="location-state">Searching nearby healthcare facilities…</div>';
+
+    const lat = userCoords.lat;
+    const lng = userCoords.lng;
+    const radius = 10000;
+
+    const query = `
+      [out:json][timeout:30];
+      (
+        node(around:${radius},${lat},${lng})["amenity"~"^(hospital|clinic|doctors|dentist)$"];
+        way(around:${radius},${lat},${lng})["amenity"~"^(hospital|clinic|doctors|dentist)$"];
+        relation(around:${radius},${lat},${lng})["amenity"~"^(hospital|clinic|doctors|dentist)$"];
+
+        node(around:${radius},${lat},${lng})["healthcare"~"^(hospital|clinic|doctor|dentist)$"];
+        way(around:${radius},${lat},${lng})["healthcare"~"^(hospital|clinic|doctor|dentist)$"];
+        relation(around:${radius},${lat},${lng})["healthcare"~"^(hospital|clinic|doctor|dentist)$"];
+      );
+      out center tags;
+    `;
+
+    try {
+      const endpoints = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter'
+];
+
+let data = null;
+let lastError = null;
+
+for (const endpoint of endpoints) {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 45000);
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type':
+            'application/x-www-form-urlencoded;charset=UTF-8'
+        },
+        body: 'data=' + encodeURIComponent(query),
+        signal: controller.signal
+      });
+
+      if (!response.ok) {
+        throw new Error('Hospital search returned HTTP ' + response.status);
+      }
+
+      const result = await response.json();
+
+      if (result.remark) {
+        throw new Error(result.remark);
+      }
+
+      data = result;
+      break;
+    } finally {
+      clearTimeout(timeout);
+    }
+  } catch (error) {
+    lastError = error;
+    console.warn('Search endpoint failed:', endpoint, error);
+  }
+}
+
+if (!data) {
+  throw lastError || new Error('All hospital search services failed');
+}
+
+
+      
+      const seen = new Set();
+      const keywords = concernKeywords[issue] || concernKeywords.general;
+
+      const items = (data.elements || [])
+        .map(element => {
+          const tags = element.tags || {};
+          const coords = element.center || element;
+
+          const name =
+            tags.name ||
+            tags['name:en'] ||
+            tags['name:te'] ||
+            tags['name:hi'];
+
+          if (
+            !name ||
+            typeof coords.lat !== 'number' ||
+            typeof coords.lon !== 'number'
+          ) {
+            return null;
+          }
+
+          const id = element.type + '/' + element.id;
+
+          if (seen.has(id)) {
+            return null;
+          }
+
+          seen.add(id);
+
+          const specialtyText = [
+            tags['healthcare:speciality'],
+            tags['healthcare:specialty'],
+            tags.speciality,
+            tags.specialty,
+            name
+          ].filter(Boolean).join(' ').toLowerCase();
+
+          const matches =
+            issue === 'general' ||
+            keywords.some(keyword =>
+              specialtyText.includes(keyword)
+            );
+
+          const address = [
+            tags['addr:housenumber'],
+            tags['addr:street'],
+            tags['addr:suburb'],
+            tags['addr:city'] || tags['addr:town'],
+            tags['addr:postcode']
+          ].filter(Boolean).join(', ');
+
+          const hospitalCoords = {
+            lat: coords.lat,
+            lng: coords.lon
+          };
+
+          return {
+            id,
+            name,
+            tags,
+            coords: hospitalCoords,
+            address: address || 'Address not listed',
+            distance: distanceKm(userCoords, hospitalCoords),
+            matches
+          };
+        })
+        .filter(Boolean);
+
+      // Matching facilities appear first; each group is sorted by distance.
+      items.sort((a, b) =>
+        Number(b.matches) - Number(a.matches) ||
+        a.distance - b.distance
+      );
+
+      renderResults(items.slice(0, 30), issue);
+
+    } catch (error) {
+      console.error('Hospital search error:', error);
+
+      results.innerHTML = `
+        <div class="location-state">
+          The free nearby search service is temporarily unavailable.
+          Please wait a moment and try again.
+        </div>
+      `;
+    } finally {
+      searchButton.disabled = false;
+    }
+  }
+
+  function renderResults(items, issue) {
+    if (!items.length) {
+      results.innerHTML = `
+        <div class="location-state">
+          No named healthcare facilities were found within 25 km.
+          Try again later or check a wider area.
+        </div>
+      `;
+      return;
+    }
+
+    results.innerHTML = `
+      <div class="results-intro">
+        <span class="eyebrow blue-eyebrow">OPENSTREETMAP</span>
+        <h3>${escapeHtml(t('nearby'))}</h3>
+        <p>
+          Possible specialty matches are prioritised.
+          Other nearby facilities are also shown because specialty
+          information may be missing from map data.
+        </p>
+      </div>
+
+      <div id="hospitalMap"
+           style="height:360px;width:100%;border-radius:16px;
+           margin:18px 0;border:1px solid #dcebee;z-index:1">
+      </div>
+
+      <div class="hospital-result-list">
+        ${items.map((item, index) => {
+          const distance = item.distance < 1
+            ? Math.round(item.distance * 1000) + ' m'
+            : item.distance.toFixed(1) + ' km';
+
+          const facilityType =
+            item.tags.amenity ||
+            item.tags.healthcare ||
+            'Healthcare facility';
+
+          const mapUrl =
+            'https://www.openstreetmap.org/?mlat=' +
+            item.coords.lat +
+            '&mlon=' +
+            item.coords.lng +
+            '#map=17/' +
+            item.coords.lat +
+            '/' +
+            item.coords.lng;
+
+          return `
+            <article class="nearby-hospital">
+              <div class="result-symbol">✚</div>
+
+              <div class="hospital-info">
+                <h4>${escapeHtml(item.name)}</h4>
+
+                <span class="distance-pill">
+                  ${escapeHtml(distance)} away
+                </span>
+
+                <p>${escapeHtml(item.address)}</p>
+                <p>${escapeHtml(facilityType)}</p>
+
+                <p>
+                  ${item.matches
+                    ? 'Possible specialty match — please verify directly.'
+                    : 'Specialty not confirmed in map data.'}
+                </p>
+
+                <p>
+                  <a href="${mapUrl}"
+                     target="_blank"
+                     rel="noopener noreferrer">
+                    View on OpenStreetMap ↗
+                  </a>
+                </p>
+              </div>
+
+              <button type="button" data-place-index="${index}">
+                ${escapeHtml(t('chooseHospital'))} →
+              </button>
+            </article>
+          `;
+        }).join('')}
+      </div>
+
+      <p class="demo-disclaimer">
+        Distances are straight-line estimates, not driving distances.
+        OpenStreetMap listings may be incomplete or outdated.
+        A keyword match does not confirm a medical specialty.
+        Contact the facility before travelling.
+      </p>
+    `;
+
+    if (typeof L !== 'undefined') {
+      if (hospitalMap) {
+        hospitalMap.remove();
+        hospitalMap = null;
+      }
+
+      hospitalMap = L.map('hospitalMap').setView(
+        [userCoords.lat, userCoords.lng],
+        12
+      );
+
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(hospitalMap);
+
+      L.marker([userCoords.lat, userCoords.lng])
+        .addTo(hospitalMap)
+        .bindPopup('Your location');
+
+      items.forEach(item => {
+        L.marker([item.coords.lat, item.coords.lng])
+          .addTo(hospitalMap)
+          .bindPopup(
+            escapeHtml(item.name) +
+            '<br>' +
+            item.distance.toFixed(1) +
+            ' km away'
+          );
+      });
+
+      setTimeout(() => {
+        if (hospitalMap) {
+          hospitalMap.invalidateSize();
+        }
+      }, 100);
+
+    } else {
+      $('hospitalMap').textContent =
+        'Map library did not load. You can still choose from the list.';
+    }
+
+    items.forEach((item, index) => {
+      const button = results.querySelector(
+        '[data-place-index="' + index + '"]'
+      );
+
+      if (button) {
+        button.addEventListener('click', () => {
+          selectHospital(item, issue);
+        });
+      }
+    });
+  }
+
+  // Save the selected facility so appointment.html can display it.
+  function selectHospital(item, issue) {
+    const distanceText = item.distance < 1
+      ? Math.round(item.distance * 1000) + ' m'
+      : item.distance.toFixed(1) + ' km';
+
+    const selectedHospital = {
+      name: item.name,
+      address: item.address || 'Address not listed',
+      distance: distanceText,
+      distanceKm: Number(item.distance.toFixed(2)),
+      concern: concernLabels[issue] || issue || 'General check-up',
+      concernKey: issue || 'general',
+      latitude: item.coords ? item.coords.lat : null,
+      longitude: item.coords ? item.coords.lng : null,
+      mapUrl: item.coords
+        ? 'https://www.openstreetmap.org/?mlat=' + item.coords.lat +
+          '&mlon=' + item.coords.lng + '#map=17/' +
+          item.coords.lat + '/' + item.coords.lng
+        : '',
+      selectedAt: new Date().toISOString()
+    };
+
+    try {
+      localStorage.setItem(
+        'careConnectSelectedHospital',
+        JSON.stringify(selectedHospital)
+      );
+
+      // Compatibility with older pages in this project.
+      localStorage.setItem(
+        'homeTreatsSelectedHealthIssue',
+        selectedHospital.concern
+      );
+
+      localStorage.setItem(
+        'careConnectSelectedHealthIssue',
+        selectedHospital.concern
+      );
+    } catch (error) {
+      console.error('Could not save selected hospital:', error);
+      alert('Your browser could not save the hospital selection. Please enable local storage and try again.');
+      return;
+    }
+
+    window.location.href = 'appointment.html';
+  }
+
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    searchNearby();
+  });
+
+  locationButton.addEventListener('click', () => {
+    detectLocation(false);
+  });
+
+  // Ask for permission through the browser.
+  // The search begins only after the user selects a concern and submits.
+  window.addEventListener('load', () => {
+    setTimeout(() => detectLocation(false), 700);
+  });
+
+})();
+</script>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+</body>
+</html>

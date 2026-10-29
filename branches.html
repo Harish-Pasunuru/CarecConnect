@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Our Branches - CareConnect</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<script src="auth.js"></script>
+
+
+<!-- ================= NAVBAR ================= -->
+
+<header class="navbar">
+
+    <h2>🏥 CareConnect</h2>
+
+    <nav>
+
+        <a href="index.html">
+            Home
+        </a>
+
+        <a
+            href="doctors.html"
+            onclick="return protectedLink(event)"
+        >
+            Doctors
+        </a>
+
+        <a href="branches.html">
+            Branches
+        </a>
+
+        <a href="#about">
+            About
+        </a>
+
+
+        <!-- BEFORE LOGIN -->
+
+        <span id="guestButtons">
+
+            <a href="login.html">
+                Login
+            </a>
+
+            <a
+                href="register.html"
+                class="register-nav"
+            >
+                Register
+            </a>
+
+        </span>
+
+
+        <!-- AFTER LOGIN -->
+
+        <span
+            id="userButtons"
+            style="display:none;"
+        >
+
+            <a href="my-information.html">
+                My Information
+            </a>
+
+            <a
+                href="#"
+                onclick="logout(); return false;"
+            >
+                Logout
+            </a>
+
+        </span>
+
+    </nav>
+
+</header>
+
+
+<!-- ================= HERO ================= -->
+
+<section class="branches-hero">
+
+    <div>
+
+        <h1>
+            🏥 Our Branches
+        </h1>
+
+        <p>
+            Quality healthcare closer to you.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- ================= BRANCHES ================= -->
+
+<section class="branches-container">
+
+    <h2>
+        Find a CareConnect Hospital Near You
+    </h2>
+
+    <p class="branch-intro">
+        Choose your preferred branch and
+        navigate to the hospital location.
+    </p>
+
+
+    <div class="branch-grid">
+
+
+        <!-- HYDERABAD -->
+
+        <div class="branch-card">
+
+            <div class="branch-icon">
+                🏥
+            </div>
+
+            <h2>
+                Hyderabad
+            </h2>
+
+            <p>
+                📍 Hyderabad, Telangana
+            </p>
+
+            <p>
+                🩺 General & Specialist Care
+            </p>
+
+            <button
+                onclick="navigateTo(
+                    'CareConnect Hospital Hyderabad Telangana'
+                )"
+            >
+                🧭 Navigate
+            </button>
+
+        </div>
+
+
+        <!-- VIJAYAWADA -->
+
+        <div class="branch-card">
+
+            <div class="branch-icon">
+                🏥
+            </div>
+
+            <h2>
+                Vijayawada
+            </h2>
+
+            <p>
+                📍 Vijayawada, Andhra Pradesh
+            </p>
+
+            <p>
+                🩺 General & Specialist Care
+            </p>
+
+            <button
+                onclick="navigateTo(
+                    'CareConnect Hospital Vijayawada Andhra Pradesh'
+                )"
+            >
+                🧭 Navigate
+            </button>
+
+        </div>
+
+
+        <!-- SECUNDERABAD -->
+
+        <div class="branch-card">
+
+            <div class="branch-icon">
+                🏥
+            </div>
+
+            <h2>
+                Secunderabad
+            </h2>
+
+            <p>
+                📍 Secunderabad, Telangana
+            </p>
+
+            <p>
+                🩺 General & Specialist Care
+            </p>
+
+            <button
+                onclick="navigateTo(
+                    'CareConnect Hospital Secunderabad Telangana'
+                )"
+            >
+                🧭 Navigate
+            </button>
+
+        </div>
+
+
+        <!-- MUMBAI -->
+
+        <div class="branch-card">
+
+            <div class="branch-icon">
+                🏥
+            </div>
+
+            <h2>
+                Mumbai
+            </h2>
+
+            <p>
+                📍 Mumbai, Maharashtra
+            </p>
+
+            <p>
+                🩺 General & Specialist Care
+            </p>
+
+            <button
+                onclick="navigateTo(
+                    'CareConnect Hospital Mumbai Maharashtra'
+                )"
+            >
+                🧭 Navigate
+            </button>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+<!-- ================= FOOTER ================= -->
+
+<footer class="branch-footer">
+
+    <p>
+        🏥 CareConnect
+    </p>
+
+    <p>
+        Your Health, Our Priority
+    </p>
+
+</footer>
+
+
+<script>
+
+/* ================================
+   LOGIN STATE
+================================ */
+
+if (isLoggedIn()) {
+
+    document.getElementById(
+        "guestButtons"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "userButtons"
+    ).style.display = "inline";
+
+}
+
+
+/* ================================
+   NAVIGATION
+================================ */
+
+function navigateTo(place) {
+
+    const encodedPlace =
+        encodeURIComponent(place);
+
+    window.open(
+
+        "https://www.google.com/maps/search/?api=1&query="
+        + encodedPlace,
+
+        "_blank"
+
+    );
+
+}
+
+</script>
+
+
+</body>
+</html>

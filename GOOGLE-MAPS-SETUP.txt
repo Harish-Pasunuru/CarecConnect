@@ -1,0 +1,29 @@
+GOOGLE MAPS PLATFORM SETUP — CareConnect Hospital Discovery
+
+The project now supports selecting a real hospital from Google Places suggestions and carrying its exact name, address, place ID, coordinates (when available), and Google Maps link into appointment.html.
+
+IMPORTANT: Google Maps cannot tell this website what a user clicked in a separate Google Maps tab/app. To capture an exact selection, the patient must select a result in the embedded Google Places suggestions on this website.
+
+SETUP (required for automatic selection):
+1. Open Google Cloud Console: https://console.cloud.google.com/
+2. Create/select a Google Cloud project and enable billing if Google requires it for your account.
+3. Enable Maps JavaScript API and Places API (Places API / Places API (New), depending on the options shown in your console).
+4. Create an API key. Restrict it to Maps JavaScript API / Places API as appropriate. For a deployed site, add HTTP referrer restrictions for your exact website domain. Never publish an unrestricted key.
+5. Open index.html in VS Code. Near the bottom, find YOUR_GOOGLE_MAPS_API_KEY in the Google Maps script URL and replace it with your key.
+6. Run the site through a local web server (for example VS Code Live Server) or deploy it to an allowed website domain. Do not test using file:// because browser/API restrictions may prevent features from working.
+7. Search a concern and location, type a hospital name, and click one of Google's dropdown suggestions. Then click Continue to appointment. The appointment page should show the selected hospital name and address, and the map link should point to that selected place.
+
+Fallback: without a valid API key, the site still opens and allows manual hospital-name entry for a classroom demo, but automatic Google Places identification is not available. Google Maps Platform may incur charges depending on current pricing and usage; check the console before enabling billing.
+
+This is a student demo. A selected place is not confirmation of appointment availability, hospital specialty, or clinical suitability. Contact the hospital to verify details.
+
+
+NEARBY HOSPITAL SEARCH
+The homepage now requests browser location permission, searches nearby hospitals using Google Places, estimates straight-line distance in km, sorts nearest first, and carries the chosen hospital into appointment.html.
+
+Important:
+- Browser GPS is accessed on the user's device after permission; a website cannot silently read GPS from a backend.
+- Use HTTPS or localhost for geolocation.
+- In Google Cloud, enable Maps JavaScript API and Places API (New/Legacy as supported by your account), configure billing, and restrict the browser key by HTTP referrer and only the APIs required.
+- Replace YOUR_GOOGLE_MAPS_API_KEY in the script tag at the bottom of index.html.
+- This is keyword-based discovery, not a verified medical-specialty directory. Patients should confirm services directly with hospitals.

@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Information - CareConnect</title>
+
+    <!-- Existing project stylesheet -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Page-specific styling -->
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f4f9fc;
+            color: #173b56;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 18px 6%;
+            background: #ffffff;
+            border-bottom: 1px solid #e2edf3;
+        }
+
+        .navbar h2 {
+            margin: 0;
+            color: #123451;
+        }
+
+        .navbar nav {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .navbar nav a {
+            color: #36556c;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .navbar nav a:hover {
+            color: #078eae;
+        }
+
+        .info-hero {
+            padding: 38px 6% 15px;
+        }
+
+        .info-hero h1 {
+            margin: 0 0 10px;
+            color: #123451;
+            font-size: 32px;
+        }
+
+        .info-hero p {
+            margin: 0;
+            color: #647b8e;
+            line-height: 1.7;
+        }
+
+        .patient-dashboard {
+            width: 88%;
+            max-width: 1200px;
+            margin: 25px auto 60px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+
+        .dashboard-card {
+            min-width: 0;
+            padding: 26px;
+            background: #ffffff;
+            border: 1px solid #e2edf3;
+            border-radius: 18px;
+            box-shadow: 0 8px 28px rgba(22, 70, 100, 0.06);
+        }
+
+        .dashboard-card h2 {
+            margin: 0 0 22px;
+            color: #123451;
+            font-size: 22px;
+        }
+
+        .info-row {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            padding: 15px 0;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row span,
+        .health-label {
+            color: #647b8e;
+            font-size: 13px;
+        }
+
+        .info-row strong,
+        .health-item strong {
+            color: #173b56;
+            font-size: 15px;
+            overflow-wrap: anywhere;
+        }
+
+        .health-details {
+            display: grid;
+            gap: 14px;
+        }
+
+        .health-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 16px;
+            background: #f2fbfc;
+            border-radius: 12px;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .section-heading h2 {
+            margin: 0 0 8px;
+        }
+
+        .section-heading p {
+            margin: 0;
+            color: #647b8e;
+            line-height: 1.6;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 10px;
+            background: #078eae;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .button:hover {
+            background: #06738e;
+        }
+
+        .refresh-button {
+            background: #e7f6f8;
+            color: #087b95;
+        }
+
+        .refresh-button:hover {
+            background: #d4eef2;
+        }
+
+        .information-appointment {
+            margin-bottom: 18px;
+            padding: 22px;
+            border: 1px solid #e2edf3;
+            border-radius: 14px;
+            background: #ffffff;
+        }
+
+        .information-appointment:last-child {
+            margin-bottom: 0;
+        }
+
+        .appointment-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .appointment-top h3 {
+            margin: 0;
+            color: #123451;
+            font-size: 18px;
+            overflow-wrap: anywhere;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 20px;
+            background: #e4f8ef;
+            color: #087b61;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .appointment-details {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .appointment-details > div {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 0;
+            padding: 14px;
+            background: #f7fafc;
+            border-radius: 10px;
+        }
+
+        .appointment-details span {
+            color: #647b8e;
+            font-size: 13px;
+        }
+
+        .appointment-details strong {
+            color: #173b56;
+            font-size: 14px;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+        }
+
+        .no-information {
+            padding: 30px 18px;
+            text-align: center;
+            background: #f5fafc;
+            border-radius: 14px;
+        }
+
+        .no-info-icon {
+            margin-bottom: 12px;
+            font-size: 38px;
+        }
+
+        .no-information h3 {
+            margin: 0 0 10px;
+            color: #123451;
+        }
+
+        .no-information p {
+            margin: 0 0 18px;
+            color: #647b8e;
+            line-height: 1.7;
+        }
+
+        .logout-button {
+            margin-top: 28px;
+            padding: 12px 24px;
+            color: #ffffff;
+            background: #dc4545;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .logout-button:hover {
+            background: #bd3030;
+        }
+
+        .page-message {
+            margin-bottom: 20px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            background: #e7f6f8;
+            color: #176078;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .navbar nav {
+                gap: 14px;
+            }
+
+            .patient-dashboard {
+                width: 92%;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .appointment-details {
+                grid-template-columns: 1fr;
+            }
+
+            .info-hero {
+                padding: 28px 5% 12px;
+            }
+
+            .info-hero h1 {
+                font-size: 26px;
+            }
+
+            .dashboard-card {
+                padding: 20px;
+            }
+
+            .section-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Authentication -->
+    <script src="auth.js"></script>
+
+    <script>
+        if (typeof requireLogin === "function") {
+            requireLogin();
+        }
+    </script>
+
+    <!-- Navigation -->
+    <header class="navbar">
+
+        <h2>🏥 CareConnect</h2>
+
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="doctors.html">Doctors</a>
+            <a href="branches.html">Branches</a>
+            <a href="appointment.html">Appointment</a>
+            <a href="my-appointments.html">My Appointments</a>
+            <a href="my-information.html">My Information</a>
+            <a href="#" onclick="logout(); return false;">Logout</a>
+        </nav>
+
+    </header>
+
+    <!-- Page title -->
+    <section class="info-hero">
+        <h1>👤 My Information</h1>
+        <p>Your personal profile, health information, and appointment history.</p>
+    </section>
+
+    <main class="patient-dashboard">
+
+        <div id="pageMessage" class="page-message" hidden></div>
+
+        <!-- Profile and health information -->
+        <section class="dashboard-grid">
+
+            <div class="dashboard-card">
+
+                <h2>👤 My Profile</h2>
+
+                <div class="info-row">
+                    <span>Full Name</span>
+                    <strong id="profileName">Loading...</strong>
+                </div>
+
+                <div class="info-row">
+                    <span>Email</span>
+                    <strong id="profileEmail">Loading...</strong>
+                </div>
+
+                <div class="info-row">
+                    <span>Phone</span>
+                    <strong id="profilePhone">Not provided</strong>
+                </div>
+
+            </div>
+
+            <div class="dashboard-card">
+
+                <h2>🩺 My Health Information</h2>
+
+                <div id="healthInformation"></div>
+
+            </div>
+
+        </section>
+
+        <!-- Appointment history -->
+        <section class="dashboard-card appointments-information">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>📅 My Previous Appointments</h2>
+                    <p>View your booked appointments and their current status.</p>
+                </div>
+
+                <div style="display:flex; flex-wrap:wrap; gap:10px;">
+
+                    <button
+                        type="button"
+                        class="button refresh-button"
+                        onclick="renderInformation()">
+                        ↻ Refresh
+                    </button>
+
+                    <a href="appointment.html" class="button">
+                        + New Appointment
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div id="previousAppointments" aria-live="polite"></div>
+
+        </section>
+
+        <button
+            type="button"
+            class="logout-button"
+            onclick="logout()">
+            🚪 Logout
+        </button>
+
+    </main>
+
+    <script>
+        "use strict";
+
+        /*
+         * This page uses the same localStorage key as auth.js:
+         * homeTreatsAppointments
+         */
+
+        function readCurrentUser() {
+            try {
+                if (typeof getCurrentUser === "function") {
+                    return getCurrentUser();
+                }
+
+                const storedUser =
+                    localStorage.getItem("homeTreatsLoggedInUser");
+
+                return storedUser ? JSON.parse(storedUser) : null;
+
+            } catch (error) {
+                console.error("Could not read current user:", error);
+                return null;
+            }
+        }
+
+        function readAllAppointments() {
+            try {
+                if (typeof getAppointments === "function") {
+                    const appointments = getAppointments();
+                    return Array.isArray(appointments)
+                        ? appointments
+                        : [];
+                }
+
+                const storedAppointments =
+                    localStorage.getItem("homeTreatsAppointments");
+
+                const parsed = storedAppointments
+                    ? JSON.parse(storedAppointments)
+                    : [];
+
+                return Array.isArray(parsed) ? parsed : [];
+
+            } catch (error) {
+                console.error("Could not read appointments:", error);
+                return [];
+            }
+        }
+
+        function valueOf(object, keys, fallback = "Not provided") {
+            for (const key of keys) {
+                const value = object?.[key];
+
+                if (
+                    value !== undefined &&
+                    value !== null &&
+                    String(value).trim() !== ""
+                ) {
+                    return String(value);
+                }
+            }
+
+            return fallback;
+        }
+
+        function normalizeEmail(value) {
+            return String(value || "").trim().toLowerCase();
+        }
+
+        /*
+         * Support common email property names.
+         * An appointment must belong to the current user
+         * before it is displayed on this page.
+         */
+        function belongsToCurrentUser(appointment, user) {
+            const appointmentEmail = valueOf(
+                appointment,
+                ["patientEmail", "userEmail", "email"],
+                ""
+            );
+
+            return (
+                normalizeEmail(appointmentEmail) !== "" &&
+                normalizeEmail(appointmentEmail) ===
+                    normalizeEmail(user.email)
+            );
+        }
+
+        function showEmptyState(container, icon, heading, message, linkText) {
+            container.replaceChildren();
+
+            const wrapper = document.createElement("div");
+            wrapper.className = "no-information";
+
+            const iconElement = document.createElement("div");
+            iconElement.className = "no-info-icon";
+            iconElement.textContent = icon;
+
+            const title = document.createElement("h3");
+            title.textContent = heading;
+
+            const description = document.createElement("p");
+            description.textContent = message;
+
+            wrapper.append(iconElement, title, description);
+
+            if (linkText) {
+                const link = document.createElement("a");
+                link.href = "appointment.html";
+                link.className = "button";
+                link.textContent = linkText;
+                wrapper.appendChild(link);
+            }
+
+            container.appendChild(wrapper);
+        }
+
+        /*
+         * Build the page using textContent so that user-provided
+         * symptoms and other fields are not interpreted as HTML.
+         */
+        function addDetail(parent, label, value) {
+            const box = document.createElement("div");
+
+            const labelElement = document.createElement("span");
+            labelElement.textContent = label;
+
+            const valueElement = document.createElement("strong");
+            valueElement.textContent = value;
+
+            box.append(labelElement, valueElement);
+            parent.appendChild(box);
+        }
+
+        function renderInformation() {
+            const user = readCurrentUser();
+
+            const healthBox =
+                document.getElementById("healthInformation");
+
+            const appointmentBox =
+                document.getElementById("previousAppointments");
+
+            const messageBox =
+                document.getElementById("pageMessage");
+
+            messageBox.hidden = true;
+            messageBox.textContent = "";
+
+            if (!user || !user.email) {
+                document.getElementById("profileName").textContent =
+                    "Not available";
+
+                document.getElementById("profileEmail").textContent =
+                    "Not available";
+
+                document.getElementById("profilePhone").textContent =
+                    "Not available";
+
+                showEmptyState(
+                    healthBox,
+                    "🔐",
+                    "Please log in",
+                    "Log in to view your health information.",
+                    "Go to Login"
+                );
+
+                showEmptyState(
+                    appointmentBox,
+                    "📅",
+                    "Login required",
+                    "Log in to view your appointment history.",
+                    "Go to Login"
+                );
+
+                const loginLink = appointmentBox.querySelector("a");
+                if (loginLink) {
+                    loginLink.href = "login.html";
+                }
+
+                return;
+            }
+
+            /*
+             * Profile
+             */
+            document.getElementById("profileName").textContent =
+                valueOf(user, ["name", "fullName", "username"], "Not provided");
+
+            document.getElementById("profileEmail").textContent =
+                valueOf(user, ["email"], "Not provided");
+
+            document.getElementById("profilePhone").textContent =
+                valueOf(user, ["phone", "phoneNumber", "mobile"], "Not provided");
+
+            /*
+             * Always read the current saved data when rendering.
+             */
+            const allAppointments = readAllAppointments();
+
+            const myAppointments = allAppointments.filter(
+                appointment =>
+                    appointment &&
+                    belongsToCurrentUser(appointment, user)
+            );
+
+            /*
+             * Most recent appointment first.
+             */
+            myAppointments.sort((a, b) => {
+                const dateA = new Date(
+                    valueOf(a, ["createdAt", "bookedAt", "date"], "")
+                ).getTime();
+
+                const dateB = new Date(
+                    valueOf(b, ["createdAt", "bookedAt", "date"], "")
+                ).getTime();
+
+                if (!Number.isNaN(dateA) && !Number.isNaN(dateB)) {
+                    return dateB - dateA;
+                }
+
+                return 0;
+            });
+
+            /*
+             * Health information
+             */
+            if (myAppointments.length === 0) {
+                showEmptyState(
+                    healthBox,
+                    "🩺",
+                    "No Health Information Yet",
+                    "Your health information will appear here after an appointment is saved to your account.",
+                    null
+                );
+            } else {
+                const latest = myAppointments[0];
+
+                healthBox.replaceChildren();
+
+                const details = document.createElement("div");
+                details.className = "health-details";
+
+                const healthIssue = document.createElement("div");
+                healthIssue.className = "health-item";
+
+                const issueLabel = document.createElement("span");
+                issueLabel.className = "health-label";
+                issueLabel.textContent = "🩺 Health Issue";
+
+                const issueValue = document.createElement("strong");
+                issueValue.textContent = valueOf(
+                    latest,
+                    ["healthIssue", "concern", "issue", "specialty"],
+                    "Not provided"
+                );
+
+                healthIssue.append(issueLabel, issueValue);
+
+                const symptoms = document.createElement("div");
+                symptoms.className = "health-item";
+
+                const symptomsLabel = document.createElement("span");
+                symptomsLabel.className = "health-label";
+                symptomsLabel.textContent = "📋 Symptoms";
+
+                const symptomsValue = document.createElement("strong");
+                symptomsValue.textContent = valueOf(
+                    latest,
+                    ["symptoms", "description", "notes"],
+                    "Not provided"
+                );
+
+                symptoms.append(symptomsLabel, symptomsValue);
+
+                const provider = document.createElement("div");
+                provider.className = "health-item";
+
+                const providerLabel = document.createElement("span");
+                providerLabel.className = "health-label";
+                providerLabel.textContent = "🏥 Hospital / Doctor";
+
+                const providerValue = document.createElement("strong");
+                providerValue.textContent = valueOf(
+                    latest,
+                    ["doctor", "hospitalName", "hospital", "provider"],
+                    "Not provided"
+                );
+
+                provider.append(providerLabel, providerValue);
+
+                details.append(healthIssue, symptoms, provider);
+                healthBox.appendChild(details);
+            }
+
+            /*
+             * Appointment history
+             */
+            if (myAppointments.length === 0) {
+                showEmptyState(
+                    appointmentBox,
+                    "📅",
+                    "No Previous Appointments",
+                    "No appointments linked to this email were found. If you have already booked one, check how appointment.html saves the booking.",
+                    "Book an Appointment"
+                );
+
+                return;
+            }
+
+            appointmentBox.replaceChildren();
+
+            myAppointments.forEach((appointment, index) => {
+                const card = document.createElement("article");
+                card.className = "information-appointment";
+
+                const top = document.createElement("div");
+                top.className = "appointment-top";
+
+                const heading = document.createElement("h3");
+
+                const providerName = valueOf(
+                    appointment,
+                    ["doctor", "hospitalName", "hospital", "provider"],
+                    "Healthcare Appointment"
+                );
+
+                heading.textContent = "🏥 " + providerName;
+
+                const status = document.createElement("span");
+                status.className = "status-badge";
+                status.textContent = valueOf(
+                    appointment,
+                    ["status", "appointmentStatus"],
+                    "Booked"
+                );
+
+                top.append(heading, status);
+
+                const details = document.createElement("div");
+                details.className = "appointment-details";
+
+                addDetail(
+                    details,
+                    "📅 Date",
+                    valueOf(appointment, ["date", "appointmentDate"], "Not provided")
+                );
+
+                addDetail(
+                    details,
+                    "⏰ Time",
+                    valueOf(appointment, ["time", "appointmentTime"], "Not provided")
+                );
+
+                addDetail(
+                    details,
+                    "🩺 Health Issue",
+                    valueOf(
+                        appointment,
+                        ["healthIssue", "concern", "issue", "specialty"],
+                        "Not provided"
+                    )
+                );
+
+                addDetail(
+                    details,
+                    "📋 Symptoms",
+                    valueOf(
+                        appointment,
+                        ["symptoms", "description", "notes"],
+                        "Not provided"
+                    )
+                );
+
+                const address = valueOf(
+                    appointment,
+                    ["hospitalAddress", "address", "location"],
+                    ""
+                );
+
+                if (address) {
+                    addDetail(details, "📍 Hospital Address", address);
+                }
+
+                const appointmentNumber = document.createElement("p");
+                appointmentNumber.style.margin = "16px 0 0";
+                appointmentNumber.style.color = "#647b8e";
+                appointmentNumber.style.fontSize = "12px";
+                appointmentNumber.textContent =
+                    "Appointment " + (index + 1);
+
+                card.append(top, details, appointmentNumber);
+                appointmentBox.appendChild(card);
+            });
+
+            /*
+             * Helpful diagnostic if data exists but is linked
+             * to a different email.
+             */
+            if (allAppointments.length > 0 && myAppointments.length === 0) {
+                messageBox.hidden = false;
+                messageBox.textContent =
+                    "Appointments exist in browser storage, but none match your logged-in email. The booking page may be saving a different email field.";
+            }
+        }
+
+        /*
+         * Update if another tab changes localStorage.
+         */
+        window.addEventListener("storage", function (event) {
+            if (
+                event.key === "homeTreatsAppointments" ||
+                event.key === "homeTreatsLoggedInUser"
+            ) {
+                renderInformation();
+            }
+        });
+
+        /*
+         * Initial render
+         */
+        renderInformation();
+    </script>
+
+</body>
+</html>

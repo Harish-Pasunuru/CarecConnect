@@ -1,0 +1,773 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Book Appointment | CareConnect</title>
+
+    <style>
+        :root {
+            --primary: #0789ad;
+            --secondary: #08aaa9;
+            --dark: #153b55;
+            --muted: #647b90;
+            --background: #f3f9fc;
+            --border: #dce9f0;
+            --white: #ffffff;
+            --success: #16835d;
+            --danger: #c0392b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--background);
+            color: var(--dark);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 18px 6%;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .brand {
+            font-size: 25px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .brand span {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            font-size: 14px;
+            font-weight: 700;
+            color: #49677d;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .hero {
+            padding: 45px 7%;
+            background: linear-gradient(120deg, #e2faf5, #eaf4ff);
+            border-radius: 0 0 25px 25px;
+        }
+
+        .hero .eyebrow {
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .hero h1 {
+            font-size: clamp(30px, 5vw, 44px);
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        .hero p {
+            color: var(--muted);
+            font-size: 16px;
+        }
+
+        .container {
+            width: min(1000px, 92%);
+            margin: 35px auto 55px;
+        }
+
+        .selected-hospital {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 22px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: 0 8px 28px rgba(23, 63, 89, 0.05);
+            margin-bottom: 25px;
+        }
+
+        .hospital-icon {
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            width: 58px;
+            height: 58px;
+            border-radius: 16px;
+            background: #ddf8f4;
+            color: var(--primary);
+            font-size: 29px;
+        }
+
+        .hospital-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .hospital-details h2 {
+            font-size: 21px;
+            overflow-wrap: anywhere;
+            margin-bottom: 5px;
+        }
+
+        .hospital-details p {
+            color: var(--muted);
+            font-size: 14px;
+            overflow-wrap: anywhere;
+        }
+
+        .hospital-badge {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 5px 11px;
+            border-radius: 30px;
+            background: #e2f8f2;
+            color: #087d69;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .change-hospital {
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .form-card {
+            padding: 30px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            box-shadow: 0 12px 35px rgba(23, 63, 89, 0.06);
+        }
+
+        .form-card h2 {
+            font-size: 25px;
+            margin-bottom: 6px;
+        }
+
+        .form-description {
+            color: var(--muted);
+            margin-bottom: 25px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .field.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 700;
+            color: #294c64;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid #cadce7;
+            border-radius: 10px;
+            background: #fff;
+            color: var(--dark);
+            font: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(7, 137, 173, 0.12);
+        }
+
+        input[readonly] {
+            background: #f3f8fb;
+            color: #49677d;
+        }
+
+        textarea {
+            min-height: 115px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 48px;
+            padding: 12px 22px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(110deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e8f6f7;
+            color: #087e98;
+        }
+
+        .btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .notice {
+            display: none;
+            margin-bottom: 20px;
+            padding: 13px 15px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .notice.success {
+            display: block;
+            background: #e6f8ef;
+            color: var(--success);
+        }
+
+        .notice.error {
+            display: block;
+            background: #fff0ee;
+            color: var(--danger);
+        }
+
+        .notice.info {
+            display: block;
+            background: #eaf6fc;
+            color: #236d91;
+        }
+
+        .privacy-note {
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 22px;
+            background: var(--white);
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        @media (max-width: 700px) {
+            .navbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .nav-links {
+                gap: 15px;
+            }
+
+            .hero {
+                padding: 32px 5%;
+            }
+
+            .container {
+                width: 94%;
+                margin-top: 24px;
+            }
+
+            .form-card {
+                padding: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .field.full-width {
+                grid-column: auto;
+            }
+
+            .selected-hospital {
+                padding: 16px;
+            }
+
+            .hospital-details h2 {
+                font-size: 17px;
+            }
+
+            .change-hospital {
+                white-space: normal;
+            }
+
+            .form-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="navbar">
+    <a href="index.html" class="brand">✚ Care<span>Connect</span></a>
+
+    <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="index.html">Find Hospitals</a>
+        <a href="doctors.html">Doctors</a>
+        <a href="my-appointments.html">My Appointments</a>
+    </nav>
+</header>
+
+<section class="hero">
+    <p class="eyebrow">YOUR HEALTH MATTERS</p>
+    <h1>📅 Book an Appointment</h1>
+    <p>Choose your appointment details and send your booking request.</p>
+</section>
+
+<main class="container">
+
+    <div id="notice" class="notice" role="status" aria-live="polite"></div>
+
+    <section class="selected-hospital">
+        <div class="hospital-icon">✚</div>
+
+        <div class="hospital-details">
+            <h2 id="selectedHospitalName">Select a hospital</h2>
+            <p id="selectedHospitalAddress">Your chosen hospital's address will appear here.</p>
+            <span id="hospitalDistance" class="hospital-badge" hidden></span>
+        </div>
+
+        <a class="change-hospital" href="index.html">Change hospital ↗</a>
+    </section>
+
+    <section class="form-card">
+        <h2>Appointment Details</h2>
+        <p class="form-description">
+            Enter your details carefully before submitting your request.
+        </p>
+
+        <form id="appointmentForm">
+            <div class="form-grid">
+
+                <div class="field full-width">
+                    <label for="hospitalName">Hospital Name *</label>
+                    <input
+                        type="text"
+                        id="hospitalName"
+                        name="hospitalName"
+                        placeholder="Choose a hospital from Find Hospitals"
+                        required
+                        readonly
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="patientName">Patient Name *</label>
+                    <input
+                        type="text"
+                        id="patientName"
+                        name="patientName"
+                        placeholder="Enter your full name"
+                        autocomplete="name"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="email">Email Address *</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="name@example.com"
+                        autocomplete="email"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="phone">Phone Number *</label>
+                    <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        placeholder="Enter your phone number"
+                        autocomplete="tel"
+                        pattern="[0-9+() -]{8,20}"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="specialty">Doctor / Specialty *</label>
+                    <select id="specialty" name="specialty" required>
+                        <option value="">Select a specialty</option>
+                        <option value="General Physician">General Physician</option>
+                        <option value="Dermatology">Dermatology / Skin</option>
+                        <option value="Cardiology">Cardiology / Heart</option>
+                        <option value="Dentistry">Dentistry / Teeth</option>
+                        <option value="Orthopedics">Orthopedics / Bones</option>
+                        <option value="Pediatrics">Pediatrics / Children</option>
+                        <option value="Gynecology">Gynecology</option>
+                        <option value="Ophthalmology">Ophthalmology / Eyes</option>
+                        <option value="ENT">ENT / Ear, Nose and Throat</option>
+                        <option value="Neurology">Neurology</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="appointmentDate">Appointment Date *</label>
+                    <input
+                        type="date"
+                        id="appointmentDate"
+                        name="appointmentDate"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="appointmentTime">Appointment Time *</label>
+                    <input
+                        type="time"
+                        id="appointmentTime"
+                        name="appointmentTime"
+                        required
+                    >
+                </div>
+
+                <div class="field full-width">
+                    <label for="healthIssue">Health Concern *</label>
+                    <input
+                        type="text"
+                        id="healthIssue"
+                        name="healthIssue"
+                        placeholder="Example: Fever, skin rash, headache"
+                        required
+                    >
+                </div>
+
+                <div class="field full-width">
+                    <label for="symptoms">Additional Information</label>
+                    <textarea
+                        id="symptoms"
+                        name="symptoms"
+                        placeholder="Briefly describe your symptoms (optional). Avoid entering sensitive medical details you don't need to share."
+                    ></textarea>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="submitButton">
+                    Confirm Appointment →
+                </button>
+
+                <a href="my-appointments.html" class="btn btn-secondary">
+                    My Appointments
+                </a>
+            </div>
+        </form>
+
+        <p class="privacy-note">
+            🔒 Your appointment request is saved in this browser.
+            This demo does not automatically send it to the hospital.
+        </p>
+    </section>
+
+</main>
+
+<footer>
+    <p>© <span id="year"></span> CareConnect · Care closer to you.</p>
+</footer>
+
+<script>
+(function () {
+    "use strict";
+
+    const $ = (id) => document.getElementById(id);
+
+    const form = $("appointmentForm");
+    const notice = $("notice");
+    const submitButton = $("submitButton");
+
+    $("year").textContent = new Date().getFullYear();
+
+    function readJSON(key) {
+        try {
+            const value = localStorage.getItem(key);
+            return value ? JSON.parse(value) : null;
+        } catch (error) {
+            console.warn("Could not read saved data:", key, error);
+            return null;
+        }
+    }
+
+    function showNotice(message, type) {
+        notice.textContent = message;
+        notice.className = "notice " + type;
+        notice.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    /*
+     * Read the hospital selected on index.html.
+     * The current project stores it as:
+     * careConnectSelectedHospital
+     */
+    const selectedHospital =
+        readJSON("careConnectSelectedHospital") ||
+        readJSON("homeTreatsSelectedHospital") ||
+        readJSON("selectedHospital");
+
+    if (selectedHospital && selectedHospital.name) {
+        $("selectedHospitalName").textContent = selectedHospital.name;
+        $("hospitalName").value = selectedHospital.name;
+
+        const address =
+            selectedHospital.address ||
+            selectedHospital.vicinity ||
+            "Address not available";
+
+        $("selectedHospitalAddress").textContent = address;
+
+        if (
+            selectedHospital.distance !== undefined &&
+            selectedHospital.distance !== null &&
+            selectedHospital.distance !== ""
+        ) {
+            $("hospitalDistance").textContent =
+                selectedHospital.distance + " away";
+            $("hospitalDistance").hidden = false;
+        }
+    } else {
+        $("selectedHospitalName").textContent = "No hospital selected";
+        $("selectedHospitalAddress").textContent =
+            "Return to Find Hospitals and select a hospital first.";
+
+        $("hospitalName").value = "";
+
+        showNotice(
+            "No hospital was selected. Please return to Find Hospitals, select a hospital, and then book your appointment.",
+            "info"
+        );
+    }
+
+    // Restore the health concern chosen on the home page.
+    const savedConcern =
+        localStorage.getItem("homeTreatsSelectedHealthIssue") ||
+        localStorage.getItem("careConnectSelectedHealthIssue") ||
+        "";
+
+    if (savedConcern) {
+        $("healthIssue").value = savedConcern;
+    }
+
+    // Pre-fill patient details when available.
+    const loggedInUser =
+        readJSON("homeTreatsLoggedInUser") ||
+        readJSON("careConnectLoggedInUser");
+
+    if (loggedInUser) {
+        if (loggedInUser.name) {
+            $("patientName").value = loggedInUser.name;
+        }
+
+        if (loggedInUser.email) {
+            $("email").value = loggedInUser.email;
+        }
+
+        if (loggedInUser.phone) {
+            $("phone").value = loggedInUser.phone;
+        }
+    }
+
+    // Prevent choosing a date in the past.
+    const today = new Date();
+    const localToday = [
+        today.getFullYear(),
+        String(today.getMonth() + 1).padStart(2, "0"),
+        String(today.getDate()).padStart(2, "0")
+    ].join("-");
+
+    $("appointmentDate").min = localToday;
+
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        if (!selectedHospital || !selectedHospital.name) {
+            showNotice(
+                "Please select a hospital from the Find Hospitals page first.",
+                "error"
+            );
+            return;
+        }
+
+        if (!form.reportValidity()) {
+            return;
+        }
+
+        const appointment = {
+            id: "CC-" + Date.now(),
+            hospitalName: selectedHospital.name,
+            hospitalAddress:
+                selectedHospital.address ||
+                selectedHospital.vicinity ||
+                "",
+            patientName: $("patientName").value.trim(),
+            email: $("email").value.trim().toLowerCase(),
+            phone: $("phone").value.trim(),
+            specialty: $("specialty").value,
+            appointmentDate: $("appointmentDate").value,
+            appointmentTime: $("appointmentTime").value,
+            healthIssue: $("healthIssue").value.trim(),
+            symptoms: $("symptoms").value.trim(),
+            status: "Requested",
+            createdAt: new Date().toISOString()
+        };
+
+        /*
+         * Save the appointment locally.
+         * This does not notify the hospital or confirm a real booking.
+         */
+        const existingAppointments =
+            readJSON("careConnectAppointments") || [];
+
+        if (!Array.isArray(existingAppointments)) {
+            showNotice(
+                "Saved appointment data could not be read. Please refresh and try again.",
+                "error"
+            );
+            return;
+        }
+
+        existingAppointments.push(appointment);
+
+        try {
+            localStorage.setItem(
+                "careConnectAppointments",
+                JSON.stringify(existingAppointments)
+            );
+
+            // Keep a compatibility copy for existing project pages.
+            localStorage.setItem(
+                "homeTreatsAppointments",
+                JSON.stringify(existingAppointments)
+            );
+
+            localStorage.setItem(
+                "careConnectLastAppointment",
+                JSON.stringify(appointment)
+            );
+
+            showNotice(
+                "Appointment request saved in this browser! Reference: " +
+                appointment.id +
+                ". Contact the hospital to confirm availability.",
+                "success"
+            );
+
+            form.reset();
+
+            // Restore values that should remain after submission.
+            $("hospitalName").value = selectedHospital.name;
+            $("healthIssue").value = savedConcern;
+            $("appointmentDate").min = localToday;
+
+            if (loggedInUser) {
+                $("patientName").value = loggedInUser.name || "";
+                $("email").value = loggedInUser.email || "";
+                $("phone").value = loggedInUser.phone || "";
+            }
+
+            submitButton.disabled = true;
+            submitButton.textContent = "Request Saved ✓";
+
+            setTimeout(function () {
+                submitButton.disabled = false;
+                submitButton.textContent = "Confirm Appointment →";
+            }, 2500);
+
+        } catch (error) {
+            console.error("Could not save appointment:", error);
+
+            showNotice(
+                "Unable to save the appointment. Check your browser storage and try again.",
+                "error"
+            );
+        }
+    });
+})();
+</script>
+
+</body>
+</html>
+```

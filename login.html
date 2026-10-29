@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>CareConnect - Login</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body class="auth-page">
+    <div class="ecg-background">
+
+    <svg
+        viewBox="0 0 1200 180"
+        preserveAspectRatio="none"
+    >
+
+        <path
+            class="ecg-line"
+            d="
+            M0,90
+            L180,90
+            L205,90
+            L220,40
+            L235,140
+            L250,90
+            L290,90
+            L315,90
+            L330,65
+            L345,115
+            L360,90
+            L520,90
+            L545,90
+            L560,30
+            L575,150
+            L590,90
+            L625,90
+            L650,90
+            L665,55
+            L680,125
+            L695,90
+            L850,90
+            L875,90
+            L890,35
+            L905,145
+            L920,90
+            L950,90
+            L975,90
+            L990,60
+            L1005,120
+            L1020,90
+            L1200,90
+            "
+        />
+
+    </svg>
+
+</div>
+
+
+<div class="auth-container">
+
+    <div class="auth-card">
+
+        <h1>🏥 CareConnect</h1>
+
+        <h2>Welcome Back 👋</h2>
+
+        <p>
+            Login to access your health dashboard.
+        </p>
+
+
+        <form id="loginForm">
+
+
+            <input
+                type="email"
+                id="email"
+                placeholder="Email Address"
+                required
+            >
+
+
+            <input
+                type="password"
+                id="password"
+                placeholder="Password"
+                required
+            >
+
+
+            <button type="submit">
+                Login
+            </button>
+
+        </form>
+
+
+        <p>
+            Don't have an account?
+            <a href="register.html">
+                Register
+            </a>
+        </p>
+
+    </div>
+
+</div>
+
+
+<script src="auth.js"></script>
+
+
+<script>
+
+document
+.getElementById("loginForm")
+.addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+
+    const email =
+        document.getElementById("email")
+        .value.trim()
+        .toLowerCase();
+
+
+    const password =
+        document.getElementById("password")
+        .value;
+
+
+    const users =
+        JSON.parse(
+            localStorage.getItem("homeTreatsUsers")
+        ) || [];
+
+
+    const user =
+        users.find(
+
+            u =>
+                u.email === email &&
+                u.password === password
+
+        );
+
+
+    if (!user) {
+
+        alert(
+            "❌ Invalid email or password."
+        );
+
+        return;
+
+    }
+
+
+    localStorage.setItem(
+
+        "homeTreatsLoggedInUser",
+
+        JSON.stringify({
+
+            name: user.name,
+
+            email: user.email,
+
+            phone: user.phone
+
+        })
+
+    );
+
+
+    alert(
+        "✅ Login successful!"
+    );
+
+
+    window.location.href =
+        "index.html";
+
+});
+
+</script>
+
+</body>
+</html>
