@@ -111,11 +111,12 @@ export default async function handler(req, res) {
     try {
       const response = await fetch(endpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-          "Accept": "application/json",
-          "User-Agent": "CareConnect/1.0"
-        },
+     headers: {
+  "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+  "Accept": "application/json",
+  "User-Agent": "CareConnect/1.0",
+  "Referer": "https://care-connect-rose-tau.vercel.app/"
+},
         body: new URLSearchParams({ data: query }),
         signal: controller.signal
       });
