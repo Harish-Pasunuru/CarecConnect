@@ -536,74 +536,41 @@
 
     const lat = userCoords.lat;
     const lng = userCoords.lng;
-    const radius = 10000;
-
-    const query = `
-      [out:json][timeout:30];
-      (
-        node(around:${radius},${lat},${lng})["amenity"~"^(hospital|clinic|doctors|dentist)$"];
-        way(around:${radius},${lat},${lng})["amenity"~"^(hospital|clinic|doctors|dentist)$"];
-        relation(around:${radius},${lat},${lng})["amenity"~"^(hospital|clinic|doctors|dentist)$"];
-
-        node(around:${radius},${lat},${lng})["healthcare"~"^(hospital|clinic|doctor|dentist)$"];
-        way(around:${radius},${lat},${lng})["healthcare"~"^(hospital|clinic|doctor|dentist)$"];
-        relation(around:${radius},${lat},${lng})["healthcare"~"^(hospital|clinic|doctor|dentist)$"];
-      );
-      out center tags;
-    `;
+    const radius = 25000;
 
     try {
-      const endpoints = [
-  'https://overpass-api.de/api/interpreter',
-  'https://overpass.kumi.systems/api/interpreter'
-];
-
-let data = null;
-let lastError = null;
-
-for (const endpoint of endpoints) {
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 45000);
-
-    try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type':
-            'application/x-www-form-urlencoded;charset=UTF-8'
-        },
-        body: 'data=' + encodeURIComponent(query),
-        signal: controller.signal
+      // Use the Vercel server-side endpoint instead of calling
+      // Overpass directly from the browser (avoids browser CORS issues).
+      const params = new URLSearchParams({
+        lat: String(lat),
+        lng: String(lng),
+        radius: String(radius)
       });
 
+      const response = await fetch(`/api/hospitals?${params}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      let data;
+
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error('The hospital search service returned an invalid response.');
+      }
+
       if (!response.ok) {
-        throw new Error('Hospital search returned HTTP ' + response.status);
+        throw new Error(
+          data.error || `Hospital search failed with HTTP ${response.status}.`
+        );
       }
 
-      const result = await response.json();
-
-      if (result.remark) {
-        throw new Error(result.remark);
+      if (!Array.isArray(data.elements)) {
+        throw new Error('Invalid hospital search response.');
       }
-
-      data = result;
-      break;
-    } finally {
-      clearTimeout(timeout);
-    }
-  } catch (error) {
-    lastError = error;
-    console.warn('Search endpoint failed:', endpoint, error);
-  }
-}
-
-if (!data) {
-  throw lastError || new Error('All hospital search services failed');
-}
-
-
-      
       const seen = new Set();
       const keywords = concernKeywords[issue] || concernKeywords.general;
 
@@ -843,6 +810,9 @@ if (!data) {
     });
   }
 
+ 
+
+
   // Save the selected facility so appointment.html can display it.
   function selectHospital(item, issue) {
     const distanceText = item.distance < 1
@@ -871,13 +841,11 @@ if (!data) {
         'careConnectSelectedHospital',
         JSON.stringify(selectedHospital)
       );
-
-      // Compatibility with older pages in this project.
+      // Keep this legacy key too in case an existing appointment page uses it.
       localStorage.setItem(
         'homeTreatsSelectedHealthIssue',
         selectedHospital.concern
       );
-
       localStorage.setItem(
         'careConnectSelectedHealthIssue',
         selectedHospital.concern
