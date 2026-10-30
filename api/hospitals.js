@@ -27,24 +27,12 @@ export default async function handler(req, res) {
   }
 
   const query = `
-    [out:json][timeout:30];
+    [out:json][timeout:20];
     (
-      node(around:${radius},${lat},${lng})
+      nwr(around:${radius},${lat},${lng})
         ["amenity"~"^(hospital|clinic|doctors|dentist)$"];
 
-      way(around:${radius},${lat},${lng})
-        ["amenity"~"^(hospital|clinic|doctors|dentist)$"];
-
-      relation(around:${radius},${lat},${lng})
-        ["amenity"~"^(hospital|clinic|doctors|dentist)$"];
-
-      node(around:${radius},${lat},${lng})
-        ["healthcare"~"^(hospital|clinic|doctor|dentist)$"];
-
-      way(around:${radius},${lat},${lng})
-        ["healthcare"~"^(hospital|clinic|doctor|dentist)$"];
-
-      relation(around:${radius},${lat},${lng})
+      nwr(around:${radius},${lat},${lng})
         ["healthcare"~"^(hospital|clinic|doctor|dentist)$"];
     );
     out center tags;
@@ -57,55 +45,44 @@ export default async function handler(req, res) {
 
   for (const endpoint of endpoints) {
     const controller = new AbortController();
-    const timeout = setTimeout(
-      () => controller.abort(),
-      35000
-    );
+    const timeout = setTimeout(() => controller.abort(), 25000);
 
     try {
-      const response = await fetch(endpoint, {
-        method: "POST",
+      const url = new URL(endpoint);
+      url.searchParams.set("data", query);
+
+      const response = await fetch(url.toString(), {
+        method: "GET",
         headers: {
-          "Content-Type":
-            "application/x-www-form-urlencoded;charset=UTF-8",
-          "Accept": "application/json"
+          "Accept": "application/json",
+          "User-Agent": "CareConnect/1.0 (healthcare facility discovery)"
         },
-        body: new URLSearchParams({
-          data: query
-        }),
         signal: controller.signal
       });
 
       if (!response.ok) {
         console.warn(
-          "Overpass endpoint returned:",
-          response.status
+          `Overpass endpoint returned ${response.status}: ${endpoint}`
         );
         continue;
       }
 
       const data = await response.json();
 
-      if (
-        !Array.isArray(data.elements) ||
-        data.remark
-      ) {
+      if (!Array.isArray(data.elements)) {
+        console.warn("Overpass returned an invalid response.");
         continue;
       }
 
-      // Preserve the Overpass response format so the
-      // existing frontend can process data.elements.
       res.setHeader(
         "Cache-Control",
-        "s-maxage=30, stale-while-revalidate=60"
+        "s-maxage=60, stale-while-revalidate=120"
       );
 
       return res.status(200).json(data);
-
     } catch (error) {
       console.error(
-        "Overpass endpoint failed:",
-        endpoint,
+        `Overpass endpoint failed: ${endpoint}`,
         error.message
       );
     } finally {
@@ -115,6 +92,6 @@ export default async function handler(req, res) {
 
   return res.status(503).json({
     error:
-      "The hospital search service is temporarily unavailable. Please try again shortly."
+      "Hospital search is temporarily unavailable. Please try again shortly."
   });
 }
